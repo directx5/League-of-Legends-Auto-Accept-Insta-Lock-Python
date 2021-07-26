@@ -43,9 +43,6 @@ class League:
         with ThreadPoolExecutor() as executor:
             executor.map(self.__select_champion, [champion]*5, [1, 2, 3, 4, 5])
 
-    def session(self):
-        return self.request('get', '/lol-champ-select/v1/session').json()
-
 
 if __name__ == '__main__':
     client = League(r'C:\Riot Games\League of Legends')
