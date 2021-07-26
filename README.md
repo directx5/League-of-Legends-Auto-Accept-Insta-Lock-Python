@@ -1,4 +1,4 @@
 # League of Legends Insta Lock
 
-# Cons
+## Cons
 - Too much to count...
