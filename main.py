@@ -44,7 +44,7 @@ class League:
 
     def select(self, champion: str):
         with ThreadPoolExecutor() as executor:
-            me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result() is True][0]+1
+            me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result() is True][0]
             self.select_champion(champion, me)
 
 
