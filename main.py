@@ -53,6 +53,7 @@ if __name__ == '__main__':
     while True:
         if client.is_selecting():
             client.select('Zed')
+            break
         elif client.is_found():
             client.accept()
         else:
