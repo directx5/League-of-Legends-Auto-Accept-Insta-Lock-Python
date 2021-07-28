@@ -35,13 +35,17 @@ class League:
     def accept(self):
         self.request('post', '/lol-matchmaking/v1/ready-check/accept')
 
-    def __select_champion(self, champion_name: str, qid: int):
+    def select_champion(self, champion_name: str, qid: int):
         data = {"championId": self.champions.get(champion_name), 'completed': True}
         self.request('patch', f'/lol-champ-select/v1/session/actions/{qid}', data)
 
+    def is_me(self, qid: int):
+        return self.request('get', f'/lol-champ-select/v1/summoners/{qid}').json().get('isSelf') is True
+
     def select(self, champion: str):
         with ThreadPoolExecutor() as executor:
-            executor.map(self.__select_champion, [champion]*5, [1, 2, 3, 4, 5])
+            me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result() is True][0]+1
+            self.select_champion(champion, me)
 
 
 if __name__ == '__main__':
@@ -49,7 +53,6 @@ if __name__ == '__main__':
     while True:
         if client.is_selecting():
             client.select('Zed')
-            break
         elif client.is_found():
             client.accept()
         else:
