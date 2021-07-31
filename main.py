@@ -27,7 +27,10 @@ class League:
         return self.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state').json().get('searchState') == 'Found'
 
     def is_selecting(self):
-        return self.request('get', '/lol-champ-select/v1/session').json().get('actions') is not None
+        return self.request('get', '/lol-champ-select/v1/session').json().get('actions')
+
+    def is_playing(self):
+        return self.request('get', '/lol-gameflow/v1/session').json()['gameClient'].get('running')
 
     def search(self):
         self.request('post', '/lol-lobby/v2/lobby/matchmaking/search')
@@ -40,19 +43,24 @@ class League:
         self.request('patch', f'/lol-champ-select/v1/session/actions/{qid}', data)
 
     def is_me(self, qid: int):
-        return self.request('get', f'/lol-champ-select/v1/summoners/{qid}').json().get('isSelf') is True
+        return self.request('get', f'/lol-champ-select/v1/summoners/{qid}').json().get('isSelf')
 
     def select(self, champion: str):
         with ThreadPoolExecutor() as executor:
-            me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result() is True][0]
+            try:
+                me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result()][0]
+            except IndexError:
+                me = 5
             self.select_champion(champion, me)
 
 
 if __name__ == '__main__':
-    client = League(r'C:\Riot Games\League of Legends')
+    client = League(r'D:\Games\Riot Games\League of Legends')
     while True:
         if client.is_selecting():
-            client.select('Zed')
+            client.select("Caitlyn")
+            while not client.is_playing():
+                pass
             break
         elif client.is_found():
             client.accept()
