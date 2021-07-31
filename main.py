@@ -56,13 +56,11 @@ class League:
 
 if __name__ == '__main__':
     client = League(r'D:\Games\Riot Games\League of Legends')
-    while True:
-        if client.is_selecting():
-            client.select("Caitlyn")
-            while not client.is_playing():
-                pass
-            break
-        elif client.is_found():
-            client.accept()
-        else:
-            continue
+    while not client.is_playing():
+        while True:
+            if client.is_selecting():
+                client.select("Caitlyn")
+            elif client.is_found():
+                client.accept()
+            else:
+                continue
