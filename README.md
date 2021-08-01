@@ -1,4 +1,4 @@
-# League of Legends Auto Accept (& Insta Lock)
+# League of Legends Auto Accept & Insta Lock
 
 ## Using
 1. Set game path & champion in main.py.
