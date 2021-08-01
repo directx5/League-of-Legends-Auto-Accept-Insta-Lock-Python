@@ -47,15 +47,12 @@ class League:
 
     def select(self, champion: str):
         with ThreadPoolExecutor() as executor:
-            try:
-                me = [i for i in range(0, 5) if executor.submit(self.is_me, i).result()][0]
-            except IndexError:
-                me = 5
+            me = 5 if len(x := [i for i in range(0, 5) if executor.submit(self.is_me, i).result()]) == 0 else x[0]
             self.select_champion(champion, me)
 
 
 if __name__ == '__main__':
-    client = League('League Path')
+    client = League(r'*:\*\League of Legends')
     while not client.is_playing():
         if client.is_selecting():
             client.select("Champion")
