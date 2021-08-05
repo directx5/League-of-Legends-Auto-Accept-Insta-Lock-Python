@@ -78,6 +78,8 @@ class League:
                     continue
             except IndexError:
                 continue
+            except KeyError:
+                break
 
 
 if __name__ == '__main__':
