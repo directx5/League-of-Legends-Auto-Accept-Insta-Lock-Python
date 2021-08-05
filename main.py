@@ -68,7 +68,8 @@ class League:
                 def everyone_in_lobby():
                     session = self.request('get', '/lol-champ-select/v1/session').json()
                     messages = self.request('get', f'/lol-chat/v1/conversations/{chat_id}/messages').json()
-                    return len(session['actions'][0]) == len(messages)
+                    team_players = [x for x in session['actions'][0] if x['isAllyAction']]
+                    return len(team_players) <= len(messages)
 
                 if everyone_in_lobby() and not sent_by(self.summoner['summonerId'], lane):
                     self.request('post', f'/lol-chat/v1/conversations/{chat_id}/messages', data=data)
