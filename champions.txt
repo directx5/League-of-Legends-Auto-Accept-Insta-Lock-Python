@@ -135,6 +135,7 @@ Varus:110
 Vayne:67
 Veigar:45
 Vel'Koz:161
+Vex:711
 Vi:254
 Viego:234
 Viktor:112
