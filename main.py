@@ -9,9 +9,8 @@ from urllib3 import disable_warnings, exceptions
 
 class League:
     def __init__(self, league: str):
-        with open('champions.txt', 'r', encoding='UTF-8') as file:
-            c = [i.split(':') for i in file.read().splitlines()]
-            self.champions = dict(zip([i[0] for i in c], [i[1] for i in c]))
+        with open('champions.txt', 'rb') as file:
+            self.champions = {(r := i.split(':'))[0]: r[1] for i in file.read().decode().splitlines()}
         with open(path.join(league, 'lockfile'), 'r', encoding='UTF-8') as lockfile:
             port, self.__password, protocol = lockfile.read().split(':')[2:]
         self.base_url = f'{protocol}://127.0.0.1:{port}/'
