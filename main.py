@@ -1,4 +1,5 @@
 from json import dumps
+import time
 from os import path
 import config
 from urllib.parse import urljoin
@@ -6,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from requests import Session
 from urllib3 import disable_warnings, exceptions
+
+from constants.game_modes import GameModes
 
 
 class League:
@@ -24,71 +27,50 @@ class League:
     def request(self, method, endpoint, data=None):
         return self.__session.request(method, urljoin(self.base_url, endpoint), data=dumps(data))
 
-    def is_found(self):
-        return self.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state').json().get('searchState') == 'Found'
+    def is_in_lobby(self):
+        return self.request('get', '/lol-lobby/v2/lobby').status_code == 200
+
+    def create_lobby(self, queueType):
+        return self.request('post', '/lol-lobby/v2/lobby', {"queueId": 450})
+
+    def queue(self):
+        return self.request('post', '/lol-lobby/v2/lobby/matchmaking/search')
+
+    def get_queue_state(self):
+        return self.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state').json().get('searchState') 
+
+    def queue_pop(self):
+        return self.get_queue_state() == 'Found'
 
     def is_searching(self):
-        value = self.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state').json().get('searchState')
-        return value == 'Searching'
-
-    def is_selecting(self):
-        return self.request('get', '/lol-champ-select/v1/session').json().get('actions')
-
-    def is_playing(self):
-        return self.request('get', '/lol-gameflow/v1/session').json()['gameClient'].get('running')
+        return self.get_queue_state() == 'Searching' 
 
     def accept(self):
-        self.request('post', '/lol-matchmaking/v1/ready-check/accept')
-
-    def select_champion(self, champion_name: str, qid: int):
-        data = {"championId": self.champions.get(champion_name), 'completed': True}
-        self.request('patch', f'/lol-champ-select/v1/session/actions/{qid}', data)
-
-    def is_me(self, qid: int):
-        return self.request('get', f'/lol-champ-select/v1/summoners/{qid}').json().get('isSelf')
-
-    def select(self, champion: str):
-        with ThreadPoolExecutor() as executor:
-            me = 5 if len(x := [i for i in range(0, 5) if executor.submit(self.is_me, i).result()]) == 0 else x[0]
-            self.select_champion(champion, me)
-
-    def chat(self, lane: str):
-        data = {'body': lane}
-        while True:
-            try:
-                chat_id = self.request('get', '/lol-chat/v1/conversations').json()[0]['id']
-
-                def sent_by(sid: int, cnt: str):
-                    messages = self.request('get', f'/lol-chat/v1/conversations/{chat_id}/messages').json()
-                    if any(x.get('fromSummonerId') == sid and cnt in x.get('body') for x in messages):
-                        return True
-                    else:
-                        return False
-
-                def everyone_in_lobby():
-                    session = self.request('get', '/lol-champ-select/v1/session').json()
-                    messages = self.request('get', f'/lol-chat/v1/conversations/{chat_id}/messages').json()
-                    team_players = [x for x in session['actions'][0] if x['isAllyAction']]
-                    return len(team_players) <= len(messages)
-
-                if everyone_in_lobby() and not sent_by(self.summoner['summonerId'], lane):
-                    self.request('post', f'/lol-chat/v1/conversations/{chat_id}/messages', data=data)
-                    break
-                else:
-                    continue
-            except IndexError:
-                continue
-            except KeyError:
-                break
-
+        return self.request('post', '/lol-matchmaking/v1/ready-check/accept')
 
 if __name__ == '__main__':
     client = League(config.LEAGUE_PATH)
-    while not client.is_playing():
-        if client.is_selecting():
-            client.select('Champion')
-            client.chat('Lane')
-        elif client.is_found():
-            client.accept()
-        else:
-            continue
+
+    if not client.is_in_lobby():
+        client.create_lobby(GameModes.ARAM)
+
+    response = client.queue()
+
+    while client.is_searching():
+        print("Waiting in queue...")
+        time.sleep(5)
+
+    print(f"No longer in queue? {client.get_queue_state()=}")
+
+    response = client.get_queue_state()
+    
+    if client.queue_pop():
+        print("Queue pop!")
+        accept_response = client.accept()
+        print("Accepted queue")
+
+    response = client.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state')
+    print("raw search-state")
+    print(response)
+
+    client.accept()
