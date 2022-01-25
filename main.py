@@ -1,5 +1,6 @@
 from json import dumps
 from os import path
+import config
 from urllib.parse import urljoin
 from concurrent.futures import ThreadPoolExecutor
 
@@ -82,7 +83,7 @@ class League:
 
 
 if __name__ == '__main__':
-    client = League('League Path')
+    client = League(config.LEAGUE_PATH)
     while not client.is_playing():
         if client.is_selecting():
             client.select('Champion')
