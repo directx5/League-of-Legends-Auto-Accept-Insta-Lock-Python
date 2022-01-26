@@ -56,21 +56,9 @@ if __name__ == '__main__':
 
     response = client.queue()
 
-    while client.is_searching():
+    while not client.queue_pop():
         print("Waiting in queue...")
         time.sleep(5)
 
-    print(f"No longer in queue? {client.get_queue_state()=}")
-
-    response = client.get_queue_state()
-    
-    if client.queue_pop():
-        print("Queue pop!")
-        accept_response = client.accept()
-        print("Accepted queue")
-
-    response = client.request('get', '/lol-lobby/v2/lobby/matchmaking/search-state')
-    print("raw search-state")
-    print(response)
-
     client.accept()
+
