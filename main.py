@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from requests import Session
 from urllib3 import disable_warnings, exceptions
 
+
 class LeagueAPI:
     def __init__(self, league_path: str):
         with open(path.join(league_path, 'lockfile'), 'r', encoding='UTF-8') as lockfile:
@@ -19,10 +20,11 @@ class LeagueAPI:
         disable_warnings(exceptions.InsecureRequestWarning)
 
     def request(self, method, endpoint, data=None):
-        return self.__session.request(method, urljoin(self.base_url, endpoint), data=dumps(data))
+        return self.__session.request(method, urljoin(
+            self.base_url, endpoint), data=dumps(data))
 
     def create_lobby(self, queueId=450):
-        """ 
+        """
             queueId 450 is ARAM
             List of valid queue IDs are listed here: https://static.developer.riotgames.com/docs/lol/queues.json
         """
@@ -32,10 +34,12 @@ class LeagueAPI:
         self.request('post', '/lol-lobby/v2/lobby/matchmaking/search')
 
     def honor_player(self, playerId=1):
-        self.request('post', '/lol-honor-v2/v1/honor-player', {'honorPlayerRequest': playerId})
+        self.request('post', '/lol-honor-v2/v1/honor-player',
+                     {'honorPlayerRequest': playerId})
 
     def session_phase(self):
-        return self.request('get', '/lol-gameflow/v1/session').json().get('phase')
+        return self.request(
+            'get', '/lol-gameflow/v1/session').json().get('phase')
 
     def accept(self):
         self.request('post', '/lol-matchmaking/v1/ready-check/accept')
@@ -56,7 +60,7 @@ if __name__ == '__main__':
         elif phase == 'Lobby':
             client.queue()
         elif phase == 'Matchmaking':
-            print("Waiting for queue to pop")
+            pass
         elif phase == 'ReadyCheck':
             client.accept()
         elif phase in ['ChampSelect', 'InProgress']:
@@ -68,6 +72,7 @@ if __name__ == '__main__':
 
         # default timeout is 15 seconds
         phase_x_timeout_map = {
+            None: 1,
             'Lobby': 1,
             'EndOfGame': 1,
             'PreEndOfGame': 1,
@@ -75,4 +80,3 @@ if __name__ == '__main__':
 
         timeout_duration = phase_x_timeout_map.get(phase, 15)
         time.sleep(timeout_duration)
-
