@@ -1,4 +1,4 @@
-# ARAM Auto Queue
+# ARAM Auto Queue ![lint](https://github.com/SaffatHasan/Aram-Auto-Queue/actions/workflows/pylint.yml/badge.svg)
 
 This program takes the following actions:
 
