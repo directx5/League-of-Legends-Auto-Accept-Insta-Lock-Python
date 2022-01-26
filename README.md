@@ -1,6 +1,6 @@
 # ARAM Auto Queue
 
-This program takes the following actions (depending on game state):
+This program takes the following actions:
 
 1. Create an ARAM lobby
 1. Start queue
