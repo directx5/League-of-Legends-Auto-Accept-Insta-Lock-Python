@@ -8,9 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 from requests import Session
 from urllib3 import disable_warnings, exceptions
 
-from constants.game_modes import GameModes
-
-
 class LeagueAPI:
     def __init__(self, league_path: str):
         with open(path.join(league_path, 'lockfile'), 'r', encoding='UTF-8') as lockfile:
@@ -34,20 +31,26 @@ class LeagueAPI:
     def queue(self):
         self.request('post', '/lol-lobby/v2/lobby/matchmaking/search')
 
+    def honor_player(self, playerId=1):
+        self.request('post', '/lol-honor-v2/v1/honor-player', {'honorPlayerRequest': playerId})
+
     def session_phase(self):
         return self.request('get', '/lol-gameflow/v1/session').json().get('phase')
 
     def accept(self):
         self.request('post', '/lol-matchmaking/v1/ready-check/accept')
 
+    def play_again(self):
+        self.request('post', '/lol-lobby/v2/play-again')
+
+
 if __name__ == '__main__':
     client = LeagueAPI(config.LEAGUE_PATH)
     print("Welcome to ARAM auto-queue.")
 
     while True:
-        timeout = 5 # default polling period is 5 seconds
-
         phase = client.session_phase()
+        # print(f"{phase=}") # debug
         if phase is None:
             client.create_lobby()
         elif phase == 'Lobby':
@@ -56,11 +59,20 @@ if __name__ == '__main__':
             print("Waiting for queue to pop")
         elif phase == 'ReadyCheck':
             client.accept()
-        elif phase in ['ChampSelect', 'InProgress', 'PreEndOfGame']:
-            # Waiting for game to complete, check once every 15 seconds
-            timeout = 15
+        elif phase in ['ChampSelect', 'InProgress']:
+            pass
+        elif phase == 'PreEndOfGame':
+            client.honor_player()
         elif phase == 'EndOfGame':
-            print("TODO: create lobby?")
+            client.play_again()
 
-        time.sleep(timeout)
+        # default timeout is 15 seconds
+        phase_x_timeout_map = {
+            'Lobby': 1,
+            'EndOfGame': 1,
+            'PreEndOfGame': 1,
+        }
+
+        timeout_duration = phase_x_timeout_map.get(phase, 15)
+        time.sleep(timeout_duration)
 
