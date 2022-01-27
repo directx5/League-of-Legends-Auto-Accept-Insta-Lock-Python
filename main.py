@@ -21,7 +21,7 @@ if __name__ == '__main__':
         if phase is None:
             client.create_lobby()
         elif phase == 'Lobby':
-            client.queue()
+            if config.AUTO_QUEUE: client.queue()
         elif phase == 'Matchmaking':
             pass
         elif phase == 'ReadyCheck':
