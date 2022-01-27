@@ -24,6 +24,12 @@ This program takes the following actions:
 1. Login to league of legends
 1. `python3 main.py`
 
+## Configuration
+
+Some useful options are listed in `config.py`. Current configuration items are:
+
+* `AUTO_QUEUE`: Clicks "FIND MATCH" for you
+
 ## Reference
 
 - LCU documentation https://lcu.vivide.re/
