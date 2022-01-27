@@ -21,9 +21,8 @@ def main():
         if phase is None:
             client.create_lobby()
         elif phase == 'Lobby':
-            if not config.AUTO_QUEUE:
-                continue
-            client.queue()
+            if config.AUTO_QUEUE:
+                client.queue()
         elif phase == 'Matchmaking':
             pass
         elif phase == 'ReadyCheck':
