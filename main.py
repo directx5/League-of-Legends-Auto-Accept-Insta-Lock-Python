@@ -12,7 +12,7 @@ from lcu_api import LeagueAPI
 import config
 
 def main():
-    client = LeagueAPI(config.LEAGUE_PATH)
+    client = LeagueAPI()
     print("Welcome to ARAM auto-queue.")
 
     while True:

@@ -3,20 +3,21 @@
 Wrapper for league client API
 """
 
-from os import path
 from json import dumps
 from urllib.parse import urljoin
 from requests import Session
 from urllib3 import disable_warnings, exceptions
+from proc_utils import lcu_process_args
 
 
 class LeagueAPI:
-    def __init__(self, league_path: str):
-        with open(path.join(league_path, 'lockfile'), 'r', encoding='UTF-8') as lockfile:
-            port, password, protocol = lockfile.read().split(':')[2:]
-        self.base_url = f'{protocol}://127.0.0.1:{port}/'
+    def __init__(self):
+        process_args = lcu_process_args()
+        self.base_url = f'https://127.0.0.1:{process_args["app-port"]}/'
         self.__session = Session()
-        self.__session.auth = ('riot', password)
+        self.__session.auth = ('riot', process_args['remoting-auth-token'])
+
+        # LCU api uses a self-signed cert
         self.__session.verify = False
         disable_warnings(exceptions.InsecureRequestWarning)
 
