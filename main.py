@@ -11,8 +11,7 @@ import time
 from lcu_api import LeagueAPI
 import config
 
-if __name__ == '__main__':
-    client = LeagueAPI(config.LEAGUE_PATH)
+def main(client):
     print("Welcome to ARAM auto-queue.")
 
     while True:
@@ -36,13 +35,11 @@ if __name__ == '__main__':
         elif phase == 'EndOfGame':
             client.play_again()
 
-        # default timeout is 15 seconds
-        phase_x_timeout_map = {
-            None: 1,
-            'Lobby': 1,
-            'EndOfGame': 1,
-            'PreEndOfGame': 1,
-        }
+        time.sleep(config.POLL_FREQUENCY)
 
-        timeout_duration = phase_x_timeout_map.get(phase, 15)
-        time.sleep(timeout_duration)
+if __name__ == '__main__':
+    client = LeagueAPI(config.LEAGUE_PATH)
+    try:
+        main(client)
+    except KeyboardInterrupt:
+        print("Thanks for using ARAM auto-queue!")
