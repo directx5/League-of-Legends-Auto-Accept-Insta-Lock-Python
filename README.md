@@ -7,9 +7,7 @@ This program takes the following actions:
 1. Wait for champion selection and the game to end...
 1. Honor a random player in post-game
 1. Hit play again
-1. repeat!
-
-_Note: the random player is currently always the second player_
+1. Repeat!
 
 ## Requirements
 
@@ -23,7 +21,6 @@ _Note: the random player is currently always the second player_
 
 ## Usage
 
-1. Edit `config.py` with your `League of Legends` directory path.
 1. Login to league of legends
 1. `python3 main.py`
 

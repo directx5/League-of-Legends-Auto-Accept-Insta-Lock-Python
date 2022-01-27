@@ -38,7 +38,8 @@ def main():
         elif phase == 'EndOfGame':
             client.play_again()
 
-        time.sleep(config.POLL_FREQUENCY)
+        sleep_duration = 1
+        time.sleep(sleep_duration)
 
 if __name__ == '__main__':
     try:
