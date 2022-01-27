@@ -29,6 +29,9 @@ if __name__ == '__main__':
         elif phase in ['ChampSelect', 'InProgress']:
             pass
         elif phase == 'PreEndOfGame':
+            client.level_change_ack()
+            client.reward_granted_ack()
+            client.mutual_honor_ack()
             client.honor_player()
         elif phase == 'EndOfGame':
             client.play_again()

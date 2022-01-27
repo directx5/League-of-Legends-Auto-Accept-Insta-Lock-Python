@@ -46,5 +46,14 @@ class LeagueAPI:
         self.request('post', '/lol-honor-v2/v1/honor-player',
                      {'honorPlayerRequest': player_id})
 
+    def level_change_ack(self):
+        self.request('post', '/lol-honor-v2/v1/level-change/ack')
+
+    def reward_granted_ack(self):
+        self.request('post', '/lol-honor-v2/v1/reward-granted/ack')
+        
+    def mutual_honor_ack(self):
+        self.request('post', '/lol-honor-v2/v1/mutual-honor/ack')
+
     def play_again(self):
         self.request('post', '/lol-lobby/v2/play-again')
