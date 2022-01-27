@@ -51,7 +51,7 @@ class LeagueAPI:
 
     def reward_granted_ack(self):
         self.request('post', '/lol-honor-v2/v1/reward-granted/ack')
-        
+
     def mutual_honor_ack(self):
         self.request('post', '/lol-honor-v2/v1/mutual-honor/ack')
 

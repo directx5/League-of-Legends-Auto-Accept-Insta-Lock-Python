@@ -11,7 +11,8 @@ import time
 from lcu_api import LeagueAPI
 import config
 
-def main(client):
+def main():
+    client = LeagueAPI(config.LEAGUE_PATH)
     print("Welcome to ARAM auto-queue.")
 
     while True:
@@ -20,7 +21,9 @@ def main(client):
         if phase is None:
             client.create_lobby()
         elif phase == 'Lobby':
-            if config.AUTO_QUEUE: client.queue()
+            if not config.AUTO_QUEUE:
+                continue
+            client.queue()
         elif phase == 'Matchmaking':
             pass
         elif phase == 'ReadyCheck':
@@ -38,8 +41,7 @@ def main(client):
         time.sleep(config.POLL_FREQUENCY)
 
 if __name__ == '__main__':
-    client = LeagueAPI(config.LEAGUE_PATH)
     try:
-        main(client)
+        main()
     except KeyboardInterrupt:
         print("Thanks for using ARAM auto-queue!")
