@@ -15,9 +15,27 @@ def launch_gui(league_api):
     layout = [
         [sg.Text('Not running', key='status')],
         [sg.Checkbox(
+            'Auto create lobby',
+            key='AUTO_LOBBY',
+            default=cfg.AUTO_LOBBY,
+            enable_events=True
+        )],
+        [sg.Checkbox(
             'Auto start queue',
             key='AUTO_QUEUE',
             default=cfg.AUTO_QUEUE,
+            enable_events=True
+        )],
+        [sg.Checkbox(
+            'Auto accept queue pop',
+            key='AUTO_ACCEPT',
+            default=cfg.AUTO_ACCEPT,
+            enable_events=True
+        )],
+        [sg.Checkbox(
+            'Auto skip post-game',
+            key='AUTO_SKIP_POSTGAME',
+            default=cfg.AUTO_SKIP_POSTGAME,
             enable_events=True
         )],
         [sg.Button('Start', key='toggle')],
@@ -39,12 +57,36 @@ def launch_gui(league_api):
             background_proc = toggle_process(background_proc, league_api)
             window['status'].update('Running' if background_proc else 'Not running')
             window['toggle'].update('Stop' if background_proc else 'Start')
+            window['AUTO_LOBBY'].update(disabled=bool(background_proc))
             window['AUTO_QUEUE'].update(disabled=bool(background_proc))
+            window['AUTO_ACCEPT'].update(disabled=bool(background_proc))
+            window['AUTO_SKIP_POSTGAME'].update(disabled=bool(background_proc))
+
+        # Code smell. Violates DRY.
+        elif event == 'AUTO_LOBBY':
+            cfg.AUTO_LOBBY = not cfg.AUTO_LOBBY
+            league_api.update_config(cfg)
+            window['AUTO_LOBBY'].update(cfg.AUTO_LOBBY)
 
         elif event == 'AUTO_QUEUE':
             cfg.AUTO_QUEUE = not cfg.AUTO_QUEUE
             league_api.update_config(cfg)
             window['AUTO_QUEUE'].update(cfg.AUTO_QUEUE)
+
+        elif event == 'AUTO_ACCEPT':
+            cfg.AUTO_ACCEPT = not cfg.AUTO_ACCEPT
+            league_api.update_config(cfg)
+            window['AUTO_ACCEPT'].update(cfg.AUTO_ACCEPT)
+
+        elif event == 'AUTO_SKIP_POSTGAME':
+            cfg.AUTO_SKIP_POSTGAME = not cfg.AUTO_QUEUE
+            league_api.update_config(cfg)
+            window['AUTO_SKIP_POSTGAME'].update(cfg.AUTO_QUEUE)
+
+        elif event == 'AUTO_PLAY_AGAIN':
+            cfg.AUTO_PLAY_AGAIN = not cfg.AUTO_QUEUE
+            league_api.update_config(cfg)
+            window['AUTO_PLAY_AGAIN'].update(cfg.AUTO_QUEUE)
 
         elif event == sg.WINDOW_CLOSED:
             if background_proc:

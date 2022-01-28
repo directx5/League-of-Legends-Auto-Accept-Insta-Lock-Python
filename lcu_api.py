@@ -9,10 +9,11 @@ import time
 from requests import Session
 from urllib3 import disable_warnings, exceptions
 from proc_utils import lcu_process_args
+from config import Config
 
 
 class LeagueAPI:
-    def __init__(self, config):
+    def __init__(self, config: Config):
         self.config = config
         process_args = lcu_process_args()
         self.base_url = f'https://127.0.0.1:{process_args["app-port"]}/'
@@ -30,23 +31,27 @@ class LeagueAPI:
     def run(self):
         phase = self.session_phase()
         if phase is None:
-            self.create_lobby()
+            if self.config.AUTO_LOBBY:
+                self.create_lobby()
         elif phase == 'Lobby':
             if self.config.AUTO_QUEUE:
                 self.queue()
         elif phase == 'Matchmaking':
             pass
         elif phase == 'ReadyCheck':
-            self.accept()
+            if self.config.AUTO_ACCEPT:
+                self.accept()
         elif phase in ['ChampSelect', 'InProgress']:
             pass
         elif phase == 'PreEndOfGame':
-            self.level_change_ack()
-            self.reward_granted_ack()
-            self.mutual_honor_ack()
-            self.honor_player()
+            if self.config.AUTO_SKIP_POSTGAME:
+                self.level_change_ack()
+                self.reward_granted_ack()
+                self.mutual_honor_ack()
+                self.honor_player()
         elif phase == 'EndOfGame':
-            self.play_again()
+            if self.config.AUTO_PLAY_AGAIN:
+                self.play_again()
 
     def update_config(self, config):
         self.config = config
