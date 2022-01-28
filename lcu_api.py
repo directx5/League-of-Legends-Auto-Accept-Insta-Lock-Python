@@ -4,7 +4,6 @@ Wrapper for league client API
 """
 
 from json import dumps
-import queue
 from urllib.parse import urljoin
 import time
 from requests import Session

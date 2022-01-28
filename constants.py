@@ -1,3 +1,7 @@
+""" constants.py
+
+"""
+
 from enum import Enum
 
 class QueueType(Enum):

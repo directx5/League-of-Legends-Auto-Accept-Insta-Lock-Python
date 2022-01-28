@@ -5,10 +5,10 @@ Entrypoint for ARAM-auto-queue
 """
 
 import multiprocessing
+import sys
 import PySimpleGUI as sg
 from config import Config
 from constants import QueueType
-import sys
 from lcu_api import LeagueAPI
 
 
@@ -16,8 +16,8 @@ def launch_gui(league_api):
     sg.theme('DefaultNoMoreNagging')
     layout = [
         [sg.Text(
-            'Not running', 
-            key='status', 
+            'Not running',
+            key='status',
             text_color='red',
         )],
         [sg.Checkbox(
