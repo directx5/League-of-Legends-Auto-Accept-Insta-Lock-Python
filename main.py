@@ -8,6 +8,7 @@ import multiprocessing
 import PySimpleGUI as sg
 from config import Config
 from constants import QueueType
+import sys
 from lcu_api import LeagueAPI
 
 
@@ -123,5 +124,8 @@ def toggle_process(proc, league_api):
 
 
 if __name__ == '__main__':
+    if sys.platform.startswith('win'):
+        # On Windows calling this function is necessary.
+        multiprocessing.freeze_support()
     cfg = Config()
     launch_gui(LeagueAPI(cfg))
