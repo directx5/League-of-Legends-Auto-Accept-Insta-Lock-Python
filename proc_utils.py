@@ -3,8 +3,10 @@
 import time
 from psutil import process_iter
 
+
 def lcu_process_args():
     return parse_cmdline_args(find_lcu_process().cmdline())
+
 
 def parse_cmdline_args(cmdline_args):
     cmdline_args_parsed = {}

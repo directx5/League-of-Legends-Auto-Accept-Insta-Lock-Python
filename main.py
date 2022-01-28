@@ -2,46 +2,66 @@
 
 Entrypoint for ARAM-auto-queue
 
-Loads configuration from config.py
-Depends on lcu_api.py to interact with league client
 """
 
-import time
-
+import multiprocessing
+import PySimpleGUI as sg
+from config import Config
 from lcu_api import LeagueAPI
-import config
 
-def main():
-    client = LeagueAPI()
-    print("Welcome to ARAM auto-queue.")
 
+def launch_gui(league_api):
+    sg.theme('DefaultNoMoreNagging')
+    layout = [
+        [sg.Text('Not running', key='status')],
+        [sg.Checkbox(
+            'Auto start queue',
+            key='AUTO_QUEUE',
+            default=cfg.AUTO_QUEUE,
+            enable_events=True
+        )],
+        [sg.Button('Start', key='toggle')],
+    ]
+
+    window = sg.Window(
+        title="ARAM auto-queue",
+        layout=layout,
+    )
+
+    # Run lcu_api in the background, store its process in MAIN_PROC
+    background_proc = None
+
+    # GUI event loop handler
     while True:
-        phase = client.session_phase()
-        # print(f"{phase=}") # debug
-        if phase is None:
-            client.create_lobby()
-        elif phase == 'Lobby':
-            if config.AUTO_QUEUE:
-                client.queue()
-        elif phase == 'Matchmaking':
-            pass
-        elif phase == 'ReadyCheck':
-            client.accept()
-        elif phase in ['ChampSelect', 'InProgress']:
-            pass
-        elif phase == 'PreEndOfGame':
-            client.level_change_ack()
-            client.reward_granted_ack()
-            client.mutual_honor_ack()
-            client.honor_player()
-        elif phase == 'EndOfGame':
-            client.play_again()
+        event, _ = window.read()
 
-        sleep_duration = 1
-        time.sleep(sleep_duration)
+        if event == 'toggle':
+            background_proc = toggle_process(background_proc, league_api)
+            window['status'].update('Running' if background_proc else 'Not running')
+            window['toggle'].update('Stop' if background_proc else 'Start')
+            window['AUTO_QUEUE'].update(disabled=bool(background_proc))
+
+        elif event == 'AUTO_QUEUE':
+            cfg.AUTO_QUEUE = not cfg.AUTO_QUEUE
+            league_api.update_config(cfg)
+            window['AUTO_QUEUE'].update(cfg.AUTO_QUEUE)
+
+        elif event == sg.WINDOW_CLOSED:
+            if background_proc:
+                background_proc.terminate()
+            break
+
+
+def toggle_process(proc, league_api):
+    if proc is not None:
+        proc.terminate()
+        return None
+
+    proc = multiprocessing.Process(target=league_api.loop, args=())
+    proc.start()
+    return proc
+
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Thanks for using ARAM auto-queue!")
+    cfg = Config()
+    launch_gui(LeagueAPI(cfg))
