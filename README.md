@@ -1,8 +1,10 @@
-# ARAM Auto Queue ![lint](https://github.com/SaffatHasan/Aram-Auto-Queue/actions/workflows/pylint.yml/badge.svg)
+# ARAM Auto Queue ![lint](https://github.com/SaffatHasan/Aram-Auto-Queue/actions/workflows/pylint.yml/badge.svg) [![Package Application with Pyinstaller](https://github.com/SaffatHasan/ARAM-Auto-Queue/actions/workflows/pyinstaller.yml/badge.svg)](https://github.com/SaffatHasan/ARAM-Auto-Queue/actions/workflows/pyinstaller.yml)
+
+![](assets/sample.png)
 
 This program takes the following actions:
 
-1. Create an ARAM lobby
+1. Create a lobby
 1. Start queue
 1. Wait for champion selection and the game to end...
 1. Honor a random player in post-game
@@ -24,11 +26,12 @@ This program takes the following actions:
 1. Login to league of legends
 1. `python3 main.py`
 
-## Configuration
+## Releases
 
-Some useful options are listed in `config.py`. Current configuration items are:
+https://github.com/SaffatHasan/ARAM-Auto-Queue/releases
 
-* `AUTO_QUEUE`: Clicks "FIND MATCH" for you
+Note: I don't know how to sign executables. You _will_ get a warning. Please be careful when running arbitrary executable files from the internet.
+
 
 ## Reference
 
