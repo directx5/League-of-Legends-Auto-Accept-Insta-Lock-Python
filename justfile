@@ -14,4 +14,5 @@ clean:
     rm -rf dist/ build/ main.spec src/__pycache__/
 
 build:
+    pip install pyinstaller
     pyinstaller -F src/main.py
