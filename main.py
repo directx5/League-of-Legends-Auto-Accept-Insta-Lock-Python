@@ -7,18 +7,30 @@ Entrypoint for ARAM-auto-queue
 import multiprocessing
 import PySimpleGUI as sg
 from config import Config
+from constants import QueueType
 from lcu_api import LeagueAPI
 
 
 def launch_gui(league_api):
     sg.theme('DefaultNoMoreNagging')
     layout = [
-        [sg.Text('Not running', key='status')],
+        [sg.Text(
+            'Not running', 
+            key='status', 
+            text_color='red',
+        )],
         [sg.Checkbox(
-            'Auto create lobby',
+            'Create lobby (if not in a party)',
             key='AUTO_LOBBY',
             default=cfg.AUTO_LOBBY,
             enable_events=True
+        )],
+        [sg.Text('Game Mode: '), sg.Combo(
+            [x.name for x in QueueType],
+            key='QUEUE_ID',
+            default_value=QueueType.ARAM.name,
+            readonly=True,
+            enable_events=True,
         )],
         [sg.Checkbox(
             'Auto start queue',
@@ -51,42 +63,48 @@ def launch_gui(league_api):
 
     # GUI event loop handler
     while True:
-        event, _ = window.read()
+        event, values = window.read()
 
         if event == 'toggle':
             background_proc = toggle_process(background_proc, league_api)
             window['status'].update('Running' if background_proc else 'Not running')
+            window['status'].update(text_color='green' if background_proc else 'red')
             window['toggle'].update('Stop' if background_proc else 'Start')
             window['AUTO_LOBBY'].update(disabled=bool(background_proc))
+            window['QUEUE_ID'].update(disabled=not cfg.AUTO_LOBBY or bool(background_proc))
             window['AUTO_QUEUE'].update(disabled=bool(background_proc))
             window['AUTO_ACCEPT'].update(disabled=bool(background_proc))
             window['AUTO_SKIP_POSTGAME'].update(disabled=bool(background_proc))
 
         # Code smell. Violates DRY.
+        # Use event, values = window.read() instead.
+        elif event == 'QUEUE_ID':
+            cfg.QUEUE_ID = QueueType[values['QUEUE_ID']]
+            league_api.update_config(cfg)
+
+        # Checkboxes toggle the value
         elif event == 'AUTO_LOBBY':
             cfg.AUTO_LOBBY = not cfg.AUTO_LOBBY
             league_api.update_config(cfg)
-            window['AUTO_LOBBY'].update(cfg.AUTO_LOBBY)
+
+            # Cannot select a queue ID if we are not creating a lobby anyways
+            window['QUEUE_ID'].update(disabled=not cfg.AUTO_LOBBY or bool(background_proc))
 
         elif event == 'AUTO_QUEUE':
             cfg.AUTO_QUEUE = not cfg.AUTO_QUEUE
             league_api.update_config(cfg)
-            window['AUTO_QUEUE'].update(cfg.AUTO_QUEUE)
 
         elif event == 'AUTO_ACCEPT':
             cfg.AUTO_ACCEPT = not cfg.AUTO_ACCEPT
             league_api.update_config(cfg)
-            window['AUTO_ACCEPT'].update(cfg.AUTO_ACCEPT)
 
         elif event == 'AUTO_SKIP_POSTGAME':
             cfg.AUTO_SKIP_POSTGAME = not cfg.AUTO_QUEUE
             league_api.update_config(cfg)
-            window['AUTO_SKIP_POSTGAME'].update(cfg.AUTO_QUEUE)
 
         elif event == 'AUTO_PLAY_AGAIN':
             cfg.AUTO_PLAY_AGAIN = not cfg.AUTO_QUEUE
             league_api.update_config(cfg)
-            window['AUTO_PLAY_AGAIN'].update(cfg.AUTO_QUEUE)
 
         elif event == sg.WINDOW_CLOSED:
             if background_proc:
