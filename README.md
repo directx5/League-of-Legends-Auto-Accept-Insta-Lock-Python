@@ -2,6 +2,8 @@
 
 ![](assets/sample.png)
 
+The purpose of this program is to streamline the flow between games. You'll no longer have to wait for buggy or unresponsive parts of the client to load as this script will programatically skip them.
+
 This program takes the following actions:
 
 1. Create a lobby
