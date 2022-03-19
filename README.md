@@ -1,8 +1,10 @@
 # ARAM Auto Queue ![lint](https://github.com/SaffatHasan/Aram-Auto-Queue/actions/workflows/pylint.yml/badge.svg) [![Package Application with Pyinstaller](https://github.com/SaffatHasan/ARAM-Auto-Queue/actions/workflows/pyinstaller.yml/badge.svg)](https://github.com/SaffatHasan/ARAM-Auto-Queue/actions/workflows/pyinstaller.yml)
 
+![](assets/sample.png)
+
+
 !! Please ensure to disable closing client in background for best performance / compatibility !!
 ![](assets/Screenshot_1.png)
-![](assets/sample.png)
 
 The purpose of this program is to streamline the flow between games. You'll no longer have to wait for buggy or unresponsive parts of the client to load as this script will programatically skip them.
 
