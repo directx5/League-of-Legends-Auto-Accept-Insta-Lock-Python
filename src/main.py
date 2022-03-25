@@ -29,8 +29,8 @@ def launch_gui(league_api):
         [sg.Text('Game Mode: '), sg.Combo(
             [x.name for x in QueueType],
             key='QUEUE_ID',
-            default_value=QueueType.ARAM.name,
-            disabled=True,
+            default_value=cfg.QUEUE_ID.name,
+            disabled=not cfg.AUTO_LOBBY,
             readonly=True,
             enable_events=True,
         )],
