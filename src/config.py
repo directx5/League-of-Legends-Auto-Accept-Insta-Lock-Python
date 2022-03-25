@@ -2,7 +2,8 @@
 """
 
 # pylint: disable=C0103, R0903
-from constants import QueueType
+from constants import QueueType, Roles
+
 
 class Config:
     def __init__(self):
@@ -12,3 +13,5 @@ class Config:
         self.AUTO_ACCEPT = True
         self.AUTO_SKIP_POSTGAME = True
         self.AUTO_PLAY_AGAIN = True
+        self.PRIMARY_ROLE = Roles.MID
+        self.SECONDARY_ROLE = Roles.JG

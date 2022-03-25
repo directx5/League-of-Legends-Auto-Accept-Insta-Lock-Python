@@ -10,7 +10,7 @@ from requests import Session
 from urllib3 import disable_warnings, exceptions
 from proc_utils import lcu_process_args
 from config import Config
-from constants import QueueType
+from constants import QueueType, Roles, queue_has_roles
 
 
 class LeagueAPI:
@@ -32,8 +32,15 @@ class LeagueAPI:
     def run(self):
         phase = self.session_phase()
         if phase is None:
-            if self.config.AUTO_LOBBY:
-                self.create_lobby(self.config.QUEUE_ID)
+            if not self.config.AUTO_LOBBY:
+                return
+            self.create_lobby(self.config.QUEUE_ID)
+            if not queue_has_roles(self.config.QUEUE_ID):
+                return
+            self.select_position_preferences(
+                self.config.PRIMARY_ROLE,
+                self.config.SECONDARY_ROLE,
+            )
         elif phase == 'Lobby':
             if self.config.AUTO_QUEUE:
                 self.queue()
@@ -66,15 +73,21 @@ class LeagueAPI:
             'get', '/lol-gameflow/v1/session').json().get('phase')
 
     def create_lobby(self, queue_type: QueueType):
-        """
-            queueId 450 is ARAM
-            List of valid queue IDs are listed here:
-                https://static.developer.riotgames.com/docs/lol/queues.json
-        """
-        self.request('post', '/lol-lobby/v2/lobby', {"queueId": queue_type.value})
+        self.request('post', '/lol-lobby/v2/lobby',
+                     {"queueId": queue_type.value})
 
     def queue(self):
         self.request('post', '/lol-lobby/v2/lobby/matchmaking/search')
+
+    def select_position_preferences(self, primary: Roles, secondary: Roles):
+        return self.request(
+            'put',
+            '/lol-lobby/v2/lobby/members/localMember/position-preferences',
+            {
+                'firstPreference': primary.value,
+                'secondPreference': secondary.value,
+            },
+        )
 
     def accept(self):
         self.request('post', '/lol-matchmaking/v1/ready-check/accept')

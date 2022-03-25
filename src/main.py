@@ -8,7 +8,7 @@ import multiprocessing
 import sys
 import PySimpleGUI as sg
 from config import Config
-from constants import QueueType
+from constants import QueueType, Roles, queue_has_roles
 from lcu_api import LeagueAPI
 
 
@@ -31,6 +31,22 @@ def launch_gui(league_api):
             key='QUEUE_ID',
             default_value=cfg.QUEUE_ID.name,
             disabled=not cfg.AUTO_LOBBY,
+            readonly=True,
+            enable_events=True,
+        )],
+        [sg.Text("Primary Role"), sg.Combo(
+            [x.name for x in Roles],
+            key='PRIMARY_ROLE',
+            default_value=cfg.PRIMARY_ROLE.name,
+            disabled=not queue_has_roles(cfg.QUEUE_ID),
+            readonly=True,
+            enable_events=True,
+        )],
+        [sg.Text("Secondary Role"), sg.Combo(
+            [x.name for x in Roles],
+            key='SECONDARY_ROLE',
+            default_value=cfg.SECONDARY_ROLE.name,
+            disabled=not queue_has_roles(cfg.QUEUE_ID),
             readonly=True,
             enable_events=True,
         )],
@@ -69,11 +85,18 @@ def launch_gui(league_api):
 
         if event == 'toggle':
             background_proc = toggle_process(background_proc, league_api)
-            window['status'].update('Running' if background_proc else 'Not running')
-            window['status'].update(text_color='green' if background_proc else 'red')
+            window['status'].update(
+                'Running' if background_proc else 'Not running')
+            window['status'].update(
+                text_color='green' if background_proc else 'red')
             window['toggle'].update('Stop' if background_proc else 'Start')
             window['AUTO_LOBBY'].update(disabled=bool(background_proc))
-            window['QUEUE_ID'].update(disabled=not cfg.AUTO_LOBBY or bool(background_proc))
+            window['QUEUE_ID'].update(
+                disabled=not cfg.AUTO_LOBBY or bool(background_proc))
+            window['PRIMARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
+            window['SECONDARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
             window['AUTO_QUEUE'].update(disabled=bool(background_proc))
             window['AUTO_ACCEPT'].update(disabled=bool(background_proc))
             window['AUTO_SKIP_POSTGAME'].update(disabled=bool(background_proc))
@@ -82,36 +105,55 @@ def launch_gui(league_api):
         # Use event, values = window.read() instead.
         elif event == 'QUEUE_ID':
             cfg.QUEUE_ID = QueueType[values['QUEUE_ID']]
-            league_api.update_config(cfg)
+            window['PRIMARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
+            window['SECONDARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
 
         # Checkboxes toggle the value
         elif event == 'AUTO_LOBBY':
             cfg.AUTO_LOBBY = not cfg.AUTO_LOBBY
-            league_api.update_config(cfg)
 
             # Cannot select a queue ID if we are not creating a lobby anyways
-            window['QUEUE_ID'].update(disabled=not cfg.AUTO_LOBBY or bool(background_proc))
+            window['QUEUE_ID'].update(
+                disabled=not cfg.AUTO_LOBBY or bool(background_proc))
+            window['PRIMARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
+            window['SECONDARY_ROLE'].update(
+                disabled=not should_display_role_selection(cfg) or bool(background_proc))
+
+        # TODO do not allow user to select the same role twice
+        elif event == 'PRIMARY_ROLE':
+            cfg.PRIMARY_ROLE = Roles[values['PRIMARY_ROLE']]
+
+        elif event == 'SECONDARY_ROLE':
+            cfg.SECONDARY_ROLE = Roles[values['SECONDARY_ROLE']]
 
         elif event == 'AUTO_QUEUE':
             cfg.AUTO_QUEUE = not cfg.AUTO_QUEUE
-            league_api.update_config(cfg)
 
         elif event == 'AUTO_ACCEPT':
             cfg.AUTO_ACCEPT = not cfg.AUTO_ACCEPT
-            league_api.update_config(cfg)
 
         elif event == 'AUTO_SKIP_POSTGAME':
             cfg.AUTO_SKIP_POSTGAME = not cfg.AUTO_QUEUE
-            league_api.update_config(cfg)
 
         elif event == 'AUTO_PLAY_AGAIN':
             cfg.AUTO_PLAY_AGAIN = not cfg.AUTO_QUEUE
-            league_api.update_config(cfg)
 
         elif event == sg.WINDOW_CLOSED:
             if background_proc:
                 background_proc.terminate()
             break
+
+        league_api.update_config(cfg)
+
+def should_display_role_selection(cfg: Config):
+    if not cfg.AUTO_LOBBY:
+        return False
+    if not queue_has_roles(cfg.QUEUE_ID):
+        return False
+    return True
 
 
 def toggle_process(proc, league_api):
