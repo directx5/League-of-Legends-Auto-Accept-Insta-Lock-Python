@@ -21,22 +21,26 @@ This program takes the following actions:
 
 - Python3
 
-## Installation
+## Setup (running from source)
 
 1. Install [python](https://www.python.org/downloads/)
 1. Install dependencies
-    `pip install -r requirements.txt`
+    `pip install -r src/requirements.txt`
+
+## Build
+
+See [Build.md](docs/build.md)
 
 ## Usage
 
 1. Login to league of legends
-1. `python3 main.py`
+1. `python3 src/main.py`
 
 ## Releases
 
 https://github.com/SaffatHasan/ARAM-Auto-Queue/releases
 
-Note: I don't know how to sign executables. You _will_ get a warning. Please be careful when running arbitrary executable files from the internet.
+Note: I don't know how to sign executables. You may get a warning. Please be careful when running arbitrary executable files from the internet.
 
 
 ## Reference
