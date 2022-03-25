@@ -148,10 +148,10 @@ def launch_gui(league_api):
 
         league_api.update_config(cfg)
 
-def should_display_role_selection(cfg: Config):
-    if not cfg.AUTO_LOBBY:
+def should_display_role_selection(config: Config):
+    if not config.AUTO_LOBBY:
         return False
-    if not queue_has_roles(cfg.QUEUE_ID):
+    if not queue_has_roles(config.QUEUE_ID):
         return False
     return True
 

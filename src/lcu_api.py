@@ -30,6 +30,7 @@ class LeagueAPI:
             time.sleep(sleep_duration)
 
     def run(self):
+        # pylint: disable=R0912
         phase = self.session_phase()
         if phase is None:
             if not self.config.AUTO_LOBBY:

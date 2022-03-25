@@ -18,8 +18,8 @@ class QueueType(Enum):
     FLEX = 440
 
 
-def queue_has_roles(q: QueueType):
-    return q in [
+def queue_has_roles(queue: QueueType):
+    return queue in [
         QueueType.DRAFT,
         QueueType.FLEX,
         QueueType.RANKED
