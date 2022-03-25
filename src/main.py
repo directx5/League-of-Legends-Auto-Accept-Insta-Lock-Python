@@ -30,6 +30,7 @@ def launch_gui(league_api):
             [x.name for x in QueueType],
             key='QUEUE_ID',
             default_value=QueueType.ARAM.name,
+            disabled=True,
             readonly=True,
             enable_events=True,
         )],
