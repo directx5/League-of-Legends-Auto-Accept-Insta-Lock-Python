@@ -15,4 +15,9 @@ clean:
 
 build:
     pip install pyinstaller
-    pyinstaller -F src/main.py
+    pip install -r src/requirements.txt
+    cd src && pyinstaller \
+        --onefile \
+        --noconsole \
+        --distpath ../dist \
+        build.spec
